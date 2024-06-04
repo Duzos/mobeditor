@@ -1,13 +1,16 @@
 package mc.duzo.mobedit;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.Random;
 
 public class MobEditMod implements ModInitializer {
@@ -15,7 +18,7 @@ public class MobEditMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final Random RANDOM = new Random();
 
-	public static MinecraftServer SERVER;
+	private static MinecraftServer SERVER;
 
 	@Override
 	public void onInitialize() {
@@ -38,9 +41,17 @@ public class MobEditMod implements ModInitializer {
 				MobEditMod.SERVER = server;
 			}
 		});
+
+		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if (entity instanceof LivingEntity) this.onLoadEntity((LivingEntity) entity);
+		});
 	}
 
-	public static boolean hasServer() {
-		return SERVER != null;
+	private void onLoadEntity(LivingEntity entity) {
+
+	}
+
+	public static Optional<MinecraftServer> getServer() {
+		return Optional.ofNullable(MobEditMod.SERVER);
 	}
 }
