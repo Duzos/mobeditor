@@ -3,12 +3,11 @@
   "package": "mc.duzo.mobedit.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-
+    "server.EntityTypeMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-
   ]
 }

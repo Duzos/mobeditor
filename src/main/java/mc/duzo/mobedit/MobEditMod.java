@@ -1,11 +1,15 @@
 package mc.duzo.mobedit;
 
+import mc.duzo.mobedit.common.edits.CustomAttribute;
+import mc.duzo.mobedit.common.edits.ItemUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +52,9 @@ public class MobEditMod implements ModInitializer {
 	}
 
 	private void onLoadEntity(LivingEntity entity) {
-
+		if (entity instanceof ServerPlayerEntity) {
+			((ServerPlayerEntity) entity).giveItemStack(ItemUtil.createSpawnEgg(EntityType.PIG, new CustomAttribute.Health(1)));
+		}
 	}
 
 	public static Optional<MinecraftServer> getServer() {
