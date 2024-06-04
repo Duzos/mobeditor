@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "mobedit",
+	"version": "${version}",
+	"name": "Xanes Mob Editor",
+	"description": "Customisable Mobs",
+	"authors": [
+		"Duzo",
+		"Xane"
+	],
+	"contact": {
+		"homepage": "https://duzo.is-a.dev/",
+		"sources": "https://github.com/Duzos/mobeditor/"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/persona/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+          "mc.duzo.mobedit.MobEditMod"
+		],
+		"client": [
+			"mc.duzo.mobedit.client.MobEditModClient"
+		]
+	},
+	"mixins": [
+		"mobedit.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.6",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+
+	}
+}
