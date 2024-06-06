@@ -1,7 +1,7 @@
 package mc.duzo.mobedit.mixin.server;
 
-import mc.duzo.mobedit.common.edits.attribute.CustomAttribute;
 import mc.duzo.mobedit.common.edits.ItemUtil;
+import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -26,10 +26,10 @@ public abstract class EntityTypeMixin<T extends Entity> {
 		if (!ItemUtil.isCustomSpawnEgg(stack)) return;
 
 		T result = cir.getReturnValue();
-		List<CustomAttribute> attributes = ItemUtil.getAttributes(stack);
+		List<AttributeHolder> attributes = ItemUtil.getAttributes(stack);
 
-		for (CustomAttribute attr : attributes) {
-			attr.tryApply(10, (LivingEntity) result);
+		for (AttributeHolder attr : attributes) {
+			attr.tryApply((LivingEntity) result);
 		}
 	}
 }

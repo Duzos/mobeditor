@@ -1,11 +1,10 @@
 package mc.duzo.mobedit.common.edits;
 
-import mc.duzo.mobedit.common.edits.attribute.CustomAttribute;
+import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 public class ItemUtil {
 	private static final String ATTRIBUTES_KEY = "EditedAttributes";
 
-	public static ItemStack createSpawnEgg(EntityType<?> type, CustomAttribute... attributes) {
+	public static ItemStack createSpawnEgg(EntityType<?> type, AttributeHolder... attributes) {
 		SpawnEggItem spawnEggItem = SpawnEggItem.forEntity(type);
 		if (spawnEggItem == null) {
 			return null;
@@ -22,8 +21,8 @@ public class ItemUtil {
 		ItemStack stack = new ItemStack(spawnEggItem);
 
 		NbtCompound attributeNbt = new NbtCompound();
-		for (CustomAttribute attr : attributes) {
-			attributeNbt.put(attr.getId(), attr.serialize(1));
+		for (AttributeHolder attr : attributes) {
+			attributeNbt.put(attr.getName(), attr.serialize());
 		}
 		stack.getOrCreateNbt().put(ATTRIBUTES_KEY, attributeNbt);
 
@@ -33,12 +32,14 @@ public class ItemUtil {
 		return stack.getOrCreateNbt().contains(ATTRIBUTES_KEY);
 	}
 
-	public static List<CustomAttribute> getAttributes(ItemStack stack) {
-		NbtCompound attributesNbt = stack.getNbt().getCompound(ATTRIBUTES_KEY);
-		List<CustomAttribute> attributes = new ArrayList<>();
+	public static List<AttributeHolder> getAttributes(ItemStack stack) {
+		NbtCompound attributesNbt = stack.getOrCreateNbt().getCompound(ATTRIBUTES_KEY);
+
+		List<AttributeHolder> attributes = new ArrayList<>();
 		for (String key : attributesNbt.getKeys()) {
-			attributes.add(CustomAttribute.fromId(Identifier.tryParse(key), attributesNbt.getCompound(key)));
+			attributes.add(new AttributeHolder(attributesNbt.getCompound(key)));
 		}
+
 		return attributes;
 	}
 }
