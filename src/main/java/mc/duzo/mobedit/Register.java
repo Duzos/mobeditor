@@ -1,5 +1,6 @@
 package mc.duzo.mobedit;
 
+import mc.duzo.mobedit.common.edits.attribute.AttributeRegistry;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -15,6 +16,7 @@ import net.minecraft.util.Identifier;
  * @author duzo
  */
 public class Register {
+    public static final AttributeRegistry.Health HEALTH_ATTRIBUTE = register(AttributeRegistry.REGISTRY, "Health", new AttributeRegistry.Health());
 
     // Initialising & Registering
 

@@ -1,6 +1,6 @@
 package mc.duzo.mobedit.mixin.server;
 
-import mc.duzo.mobedit.common.edits.CustomAttribute;
+import mc.duzo.mobedit.common.edits.attribute.CustomAttribute;
 import mc.duzo.mobedit.common.edits.ItemUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -29,7 +29,7 @@ public abstract class EntityTypeMixin<T extends Entity> {
 		List<CustomAttribute> attributes = ItemUtil.getAttributes(stack);
 
 		for (CustomAttribute attr : attributes) {
-			attr.tryApply((LivingEntity) result);
+			attr.tryApply(10, (LivingEntity) result);
 		}
 	}
 }
