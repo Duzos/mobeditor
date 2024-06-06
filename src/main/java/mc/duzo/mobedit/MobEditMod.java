@@ -1,6 +1,7 @@
 package mc.duzo.mobedit;
 
 import mc.duzo.mobedit.common.edits.ItemUtil;
+import mc.duzo.mobedit.common.edits.attribute.applier.ApplierRegistry;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -53,7 +54,7 @@ public class MobEditMod implements ModInitializer {
 
 	private void onLoadEntity(LivingEntity entity) {
 		if (entity instanceof ServerPlayerEntity) {
-			((ServerPlayerEntity) entity).giveItemStack(ItemUtil.createSpawnEgg(EntityType.PIG, new AttributeHolder(Register.HEALTH_ATTRIBUTE, 1)));
+			((ServerPlayerEntity) entity).giveItemStack(ItemUtil.createSpawnEgg(EntityType.PIG, new AttributeHolder(ApplierRegistry.HEALTH, 1), new AttributeHolder(ApplierRegistry.MOVEMENT_SPEED, 1.5)));
 		}
 	}
 

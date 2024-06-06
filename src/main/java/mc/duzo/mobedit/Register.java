@@ -16,12 +16,12 @@ import net.minecraft.util.Identifier;
  * @author duzo
  */
 public class Register {
-    public static final ApplierRegistry.Health HEALTH_ATTRIBUTE = register(ApplierRegistry.REGISTRY, "health", new ApplierRegistry.Health());
+
 
     // Initialising & Registering
 
     public static void initialize() {
-
+        ApplierRegistry.initialize();
     }
 
     public static <V, T extends V> T register(Registry<V> registry, String name, T entry) {
