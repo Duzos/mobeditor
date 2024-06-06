@@ -49,4 +49,11 @@ public class AttributeHolder {
 	public String getName() {
 		return this.getApplier().getName();
 	}
+
+	public double getTarget() {
+		return target;
+	}
+	private void setTarget(double target) {
+		this.target = target;
+	}
 }
