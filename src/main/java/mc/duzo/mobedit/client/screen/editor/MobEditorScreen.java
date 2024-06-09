@@ -19,10 +19,13 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 
 public class MobEditorScreen extends Screen {
+	private static final Identifier TEXTURE = new Identifier(MobEditMod.MOD_ID, "textures/gui/editor.png");
+
 	private EditedEntity editor;
 	private boolean wasPreviousNext;
 	private HashMap<String, NumericalEditBoxWidget> editBoxes;
@@ -34,14 +37,16 @@ public class MobEditorScreen extends Screen {
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		context.drawTexture(TEXTURE, ScreenHelper.getCentreX() - (256 / 2), ScreenHelper.getCentreY() - (166 / 2), 0, 0, 256, 256);
+
 		super.render(context, mouseX, mouseY, delta);
 
-		InventoryScreen.drawEntity(context, ScreenHelper.getCentreX(), (int) (ScreenHelper.getScreenHeight() * 0.48), ScreenHelper.getScreenWidth() / 16, (float) 0f, (float) 0f, this.getSelectedEntity());
+		InventoryScreen.drawEntity(context, ScreenHelper.getCentreX() + 64, (int) (ScreenHelper.getScreenHeight() * 0.49), 24, (float) 0f, (float) 0f, this.getSelectedEntity());
 
 		ScreenHelper.renderWidthScaledText(
 				this.getSelectedEntity().getName().getString(),
 				context,
-				ScreenHelper.getCentreX(),
+				ScreenHelper.getCentreX() + 64,
 				ScreenHelper.getCentreY() + 16,
 				0xFFFFFF,
 				this.textRenderer.getWidth(this.getSelectedEntity().getName()),
@@ -55,7 +60,7 @@ public class MobEditorScreen extends Screen {
 			ScreenHelper.renderWidthScaledText(
 					name,
 					context,
-					ScreenHelper.getCentreX() - 128 - 4 - this.textRenderer.getWidth(name),
+					ScreenHelper.getCentreX() - 64 - 4 - this.textRenderer.getWidth(name),
 					y + 5,
 					0xFFFFFF,
 					this.textRenderer.getWidth(name),
@@ -65,24 +70,29 @@ public class MobEditorScreen extends Screen {
 	}
 
 	@Override
+	public void renderBackgroundTexture(DrawContext context) {
+		super.renderBackgroundTexture(context);
+	}
+
+	@Override
 	protected void init() {
 		super.init();
 
 		this.editor = new EditedEntity(0);
 
 		this.addDrawableChild(
-				ScreenHelper.createTextButton(this.textRenderer, Text.of("→"), (widget) -> this.selectNextEntity(), ScreenHelper.getCentreX() + 16, ScreenHelper.getCentreY(), false)
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("→"), (widget) -> this.selectNextEntity(), ScreenHelper.getCentreX() + 64 + 16, ScreenHelper.getCentreY(), false)
 		);
 
 		this.addDrawableChild(
-				ScreenHelper.createTextButton(this.textRenderer, Text.of("←"), (widget) -> this.selectPreviousEntity(), ScreenHelper.getCentreX() - this.textRenderer.getWidth("←") - 16, ScreenHelper.getCentreY(), false)
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("←"), (widget) -> this.selectPreviousEntity(), ScreenHelper.getCentreX() + 64 - this.textRenderer.getWidth("←") - 16, ScreenHelper.getCentreY(), false)
 		);
 
 		this.addDrawableChild(
-				ScreenHelper.createTextButton(this.textRenderer, Text.of("CREATE"), (widget) -> this.pressComplete(), ScreenHelper.getCentreX(), ScreenHelper.getCentreY() + 64, true)
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("CREATE"), (widget) -> this.pressComplete(), ScreenHelper.getCentreX() + 64, ScreenHelper.getCentreY() + 64, true)
 		);
 
-		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() - (ScreenHelper.getScreenWidth() / 32), ScreenHelper.getCentreY() + 32, ScreenHelper.getScreenWidth() / 16, 18, Text.of(""), Text.of("NAME"));
+		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() + 32, ScreenHelper.getCentreY() + 32, 64, 18, Text.of(""), Text.of("NAME"));
 		this.addDrawableChild(this.nameBox);
 
 		this.editBoxes = new HashMap<>();
@@ -108,7 +118,7 @@ public class MobEditorScreen extends Screen {
 
 		NumericalEditBoxWidget widget = new NumericalEditBoxWidget(
 				this.textRenderer,
-				ScreenHelper.getCentreX() - 128,
+				ScreenHelper.getCentreX() - 64,
 				y,
 				48,
 				18,

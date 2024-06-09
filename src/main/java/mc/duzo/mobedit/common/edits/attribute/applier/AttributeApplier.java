@@ -4,7 +4,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 import java.util.Optional;
@@ -26,10 +25,6 @@ public abstract class AttributeApplier {
 		}
 
 		return false;
-	}
-
-	public static AttributeApplier fromId(Identifier id, NbtCompound data) {
-		return null;
 	}
 
 	public abstract static class SimpleAttributeApplier extends AttributeApplier {

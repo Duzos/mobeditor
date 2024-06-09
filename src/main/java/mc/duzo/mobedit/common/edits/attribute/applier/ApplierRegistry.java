@@ -66,7 +66,7 @@ public class ApplierRegistry {
 
 		@Override
 		public String getName() {
-			return "Movement Speed";
+			return "Movement";
 		}
 
 		@Override
@@ -89,7 +89,7 @@ public class ApplierRegistry {
 
 		@Override
 		public String getName() {
-			return "Attack Damage";
+			return "Attack";
 		}
 
 		@Override
