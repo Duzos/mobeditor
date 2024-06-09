@@ -2,10 +2,12 @@ package mc.duzo.mobedit.common.edits.attribute.applier;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AttributeApplier {
@@ -15,6 +17,7 @@ public abstract class AttributeApplier {
 	protected abstract EntityAttributeModifier create(double target, LivingEntity entity);
 	protected abstract EntityAttributeModifier create(double target, double current);
 	protected abstract EntityAttributeModifier apply(double target, LivingEntity entity);
+	public abstract Optional<Double> getDefault(LivingEntity entity);
 	public abstract boolean hasModifier(LivingEntity entity);
 	public boolean tryApply(double target, LivingEntity entity) {
 		if (!hasModifier(entity)) {
@@ -62,13 +65,29 @@ public abstract class AttributeApplier {
 		@Override
 		protected EntityAttributeModifier apply(double target, LivingEntity entity) {
 			EntityAttributeModifier modifier = create(target, entity);
-			entity.getAttributeInstance(this.getTargetAttribute()).addPersistentModifier(modifier);
+
+			EntityAttributeInstance instance = entity.getAttributeInstance(this.getTargetAttribute());
+			if (instance == null) return modifier;
+
+			instance.addPersistentModifier(modifier);
+
 			return modifier;
 		}
 
 		@Override
 		public boolean hasModifier(LivingEntity entity) {
+			EntityAttributeInstance instance = entity.getAttributeInstance(this.getTargetAttribute());
+			if (instance == null) return false;
+
 			return entity.getAttributeInstance(this.getTargetAttribute()).getModifier(this.getAttributeUuid()) != null;
+		}
+
+		@Override
+		public Optional<Double> getDefault(LivingEntity entity) {
+			EntityAttributeInstance instance = entity.getAttributeInstance(this.getTargetAttribute());
+			if (instance == null) return Optional.empty();
+
+			return Optional.of(instance.getBaseValue());
 		}
 	}
 }

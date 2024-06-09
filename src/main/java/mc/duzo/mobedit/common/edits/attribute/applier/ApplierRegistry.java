@@ -4,11 +4,14 @@ import mc.duzo.mobedit.MobEditMod;
 import mc.duzo.mobedit.Register;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class ApplierRegistry {
@@ -18,6 +21,7 @@ public class ApplierRegistry {
 	public static final ApplierRegistry.Health HEALTH = Register.register(ApplierRegistry.REGISTRY, "health", new ApplierRegistry.Health());
 	public static final ApplierRegistry.MovementSpeed MOVEMENT_SPEED = Register.register(ApplierRegistry.REGISTRY, "movement_speed", new ApplierRegistry.MovementSpeed());
 	public static final ApplierRegistry.AttackDamage ATTACK_DAMAGE = Register.register(ApplierRegistry.REGISTRY, "attack_damage", new ApplierRegistry.AttackDamage());
+	public static final ApplierRegistry.XP XP = Register.register(ApplierRegistry.REGISTRY, "xp", new XP());
 
 	public static void initialize() {
 	}
@@ -91,6 +95,54 @@ public class ApplierRegistry {
 		@Override
 		public Identifier getId() {
 			return REFERENCE;
+		}
+	}
+
+	private static class XP extends AttributeApplier {
+		private static final UUID ID = UUID.fromString("87760957-7e48-4cf9-8202-d25f92325d8f");
+		public static final Identifier REFERENCE = new Identifier(MobEditMod.MOD_ID, "xp");
+
+		@Override
+		protected UUID getAttributeUuid() {
+			return ID;
+		}
+
+		@Override
+		public String getName() {
+			return "XP";
+		}
+
+		@Override
+		public Identifier getId() {
+			return REFERENCE;
+		}
+
+		@Override
+		protected EntityAttributeModifier create(double target, LivingEntity entity) {
+			return null;
+		}
+
+		@Override
+		protected EntityAttributeModifier create(double target, double current) {
+			return null;
+		}
+
+		@Override
+		protected EntityAttributeModifier apply(double target, LivingEntity entity) {
+			((CustomAttributes) entity).mobeditor$setTargetXp((int) target);
+			return null;
+		}
+
+		@Override
+		public Optional<Double> getDefault(LivingEntity entity) {
+			double result = ((CustomAttributes) entity).mobeditor$getDefaultXp();
+
+			return Optional.of(result);
+		}
+
+		@Override
+		public boolean hasModifier(LivingEntity entity) {
+			return ((CustomAttributes) entity).mobeditor$getTargetXp() != -1;
 		}
 	}
 }

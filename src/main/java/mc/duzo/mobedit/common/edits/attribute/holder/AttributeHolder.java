@@ -1,5 +1,6 @@
 package mc.duzo.mobedit.common.edits.attribute.holder;
 
+import mc.duzo.mobedit.MobEditMod;
 import mc.duzo.mobedit.common.edits.attribute.applier.ApplierRegistry;
 import mc.duzo.mobedit.common.edits.attribute.applier.AttributeApplier;
 import net.minecraft.entity.LivingEntity;
@@ -39,7 +40,7 @@ public class AttributeHolder {
 		return data;
 	}
 	private void deserialize(NbtCompound data) {
-		this.target = data.getDouble("Target");
+		this.target = MobEditMod.round(data.getDouble("Target"), 3);
 	}
 
 	public static NbtCompound serializeList(List<AttributeHolder> list) {

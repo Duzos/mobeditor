@@ -57,4 +57,9 @@ public class MobEditMod implements ModInitializer {
 	public static Optional<MinecraftServer> getServer() {
 		return Optional.ofNullable(MobEditMod.SERVER);
 	}
+
+	public static double round(double value, int precision) {
+		int scale = (int) Math.pow(10, precision);
+		return (double) Math.round(value * scale) / scale;
+	}
 }

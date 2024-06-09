@@ -16,6 +16,7 @@ public class EditedEntity {
 	private int entityIndex;
 	private LivingEntity entityCache;
 	private List<AttributeHolder> attributes;
+	private String name;
 
 	public EditedEntity(int index, List<AttributeHolder> attributes) {
 		this.entityIndex = index;
@@ -26,6 +27,8 @@ public class EditedEntity {
 	}
 	public EditedEntity(NbtCompound data) {
 		this(data.getInt("EntityIndex"), AttributeHolder.deserializeList(data.getCompound("Attributes")));
+
+		this.deserialize(data);
 	}
 
 	public Optional<LivingEntity> getSelectedEntity() {
@@ -63,10 +66,27 @@ public class EditedEntity {
 				.orElse(fallback);
 	}
 
+	public Optional<String> getName() {
+		return Optional.ofNullable(this.name);
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public NbtCompound serialize() {
 		NbtCompound nbt = new NbtCompound();
 		nbt.putInt("EntityIndex", this.entityIndex);
 		nbt.put("Attributes", AttributeHolder.serializeList(this.attributes));
+
+		if (this.name != null) {
+			nbt.putString("Name", this.name);
+		}
+
 		return nbt;
+	}
+	private void deserialize(NbtCompound data) {
+		if (data.contains("Name")) {
+			this.setName(data.getString("Name"));
+		}
 	}
 }

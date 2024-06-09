@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.widget.EditBoxWidget;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -25,6 +26,7 @@ public class MobEditorScreen extends Screen {
 	private EditedEntity editor;
 	private boolean wasPreviousNext;
 	private HashMap<String, NumericalEditBoxWidget> editBoxes;
+	private EditBoxWidget nameBox;
 
 	public MobEditorScreen() {
 		super(Text.translatable("screen." + MobEditMod.MOD_ID + ".mob_editor"));
@@ -36,17 +38,19 @@ public class MobEditorScreen extends Screen {
 
 		InventoryScreen.drawEntity(context, ScreenHelper.getCentreX(), (int) (ScreenHelper.getScreenHeight() * 0.48), ScreenHelper.getScreenWidth() / 16, (float) 0f, (float) 0f, this.getSelectedEntity());
 
+		ScreenHelper.renderWidthScaledText(
+				this.getSelectedEntity().getName().getString(),
+				context,
+				ScreenHelper.getCentreX(),
+				ScreenHelper.getCentreY() + 16,
+				0xFFFFFF,
+				this.textRenderer.getWidth(this.getSelectedEntity().getName()),
+				true
+		);
+
 		// this might cause lag
-		int count = 1;
 		for (String name : this.editBoxes.keySet()) {
-			boolean even = count % 2 == 0;
-			int y = ScreenHelper.getCentreY();
-			if (even) {
-				y = y - (20 * (count / 2));
-			}
-			else {
-				y = y + (20 * (count / 2));
-			}
+			int y = this.editBoxes.get(name).getY();
 
 			ScreenHelper.renderWidthScaledText(
 					name,
@@ -57,7 +61,6 @@ public class MobEditorScreen extends Screen {
 					this.textRenderer.getWidth(name),
 					false
 			);
-			count++;
 		}
 	}
 
@@ -76,8 +79,11 @@ public class MobEditorScreen extends Screen {
 		);
 
 		this.addDrawableChild(
-				ScreenHelper.createTextButton(this.textRenderer, Text.of("CREATE"), (widget) -> this.pressComplete(), ScreenHelper.getCentreX(), ScreenHelper.getCentreY() + 32, true)
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("CREATE"), (widget) -> this.pressComplete(), ScreenHelper.getCentreX(), ScreenHelper.getCentreY() + 64, true)
 		);
+
+		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() - (ScreenHelper.getScreenWidth() / 32), ScreenHelper.getCentreY() + 32, ScreenHelper.getScreenWidth() / 16, 18, Text.of(""), Text.of("NAME"));
+		this.addDrawableChild(this.nameBox);
 
 		this.editBoxes = new HashMap<>();
 
@@ -86,10 +92,12 @@ public class MobEditorScreen extends Screen {
 			createEditBoxForApplier(applier, count);
 			count++;
 		}
+
+		this.onChangeEntity();
 	}
 
 	private NumericalEditBoxWidget createEditBoxForApplier(AttributeApplier applier, int count) {
-		boolean even = count % 2 == 0;
+		boolean even = (count % 2) == 0;
 		int y = ScreenHelper.getCentreY();
 		if (even) {
 			y = y - (20 * (count / 2));
@@ -102,7 +110,7 @@ public class MobEditorScreen extends Screen {
 				this.textRenderer,
 				ScreenHelper.getCentreX() - 128,
 				y,
-				32,
+				48,
 				18,
 				0,
 				Text.of("")
@@ -136,8 +144,8 @@ public class MobEditorScreen extends Screen {
 		}
 
 		this.editor = new EditedEntity(index);
-
 		this.wasPreviousNext = true;
+		this.onChangeEntity();
 	}
 	private void selectPreviousEntity() {
 		int index = this.editor.getEntityIndex();
@@ -149,9 +157,17 @@ public class MobEditorScreen extends Screen {
 		}
 
 		this.editor = new EditedEntity(index);
-
 		this.wasPreviousNext = false;
+		this.onChangeEntity();
 	}
+	private void onChangeEntity() {
+		for (String name : this.editBoxes.keySet()) {
+			NumericalEditBoxWidget widget = this.editBoxes.get(name);
+			AttributeApplier applier = applierFromName(name);
+			widget.setText("" + MobEditMod.round(applier.getDefault(this.getSelectedEntity()).orElse(0d), 2));
+		}
+	}
+
 	private static int getRegistrySize() {
 		return Registries.ENTITY_TYPE.size();
 	}
@@ -159,9 +175,14 @@ public class MobEditorScreen extends Screen {
 	private void pressComplete() {
 		for (String name : this.editBoxes.keySet()) {
 			NumericalEditBoxWidget widget = this.editBoxes.get(name);
-			if (widget.getValue() <= 0) continue;
+			AttributeApplier applier = applierFromName(name);
+			if (widget.getValue() == applier.getDefault(this.getSelectedEntity()).orElse(-1d)) continue;
 
-			this.editor.addAttribute(new AttributeHolder(applierFromName(name), widget.getValue()));
+			this.editor.addAttribute(new AttributeHolder(applier, widget.getValue()));
+		}
+
+		if (!this.nameBox.getText().isBlank()) {
+			this.editor.setName(this.nameBox.getText());
 		}
 
 		NbtCompound data = this.editor.serialize();
