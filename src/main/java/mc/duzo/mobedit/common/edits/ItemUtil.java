@@ -5,6 +5,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 public class ItemUtil {
 	private static final String ATTRIBUTES_KEY = "EditedAttributes";
 
-	public static ItemStack createSpawnEgg(EntityType<?> type, AttributeHolder... attributes) {
+	public static ItemStack createSpawnEgg(EntityType<?> type, List<AttributeHolder> attributes) {
 		SpawnEggItem spawnEggItem = SpawnEggItem.forEntity(type);
 		if (spawnEggItem == null) {
 			return null;
@@ -27,6 +28,12 @@ public class ItemUtil {
 		stack.getOrCreateNbt().put(ATTRIBUTES_KEY, attributeNbt);
 
 		return stack;
+	}
+	public static ItemStack createSpawnEgg(EditedEntity edited) {
+		return createSpawnEgg(
+				Registries.ENTITY_TYPE.get(edited.getEntityIndex()),
+				edited.getAttributes()
+		);
 	}
 	public static boolean isCustomSpawnEgg(ItemStack stack) {
 		return stack.getOrCreateNbt().contains(ATTRIBUTES_KEY);
