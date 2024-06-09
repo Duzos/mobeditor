@@ -1,3 +1,3 @@
-# 0.2.0-alpha
-- Basic screen for creating custom egg
-- /mobeditor open_screen
+# 0.3.0-alpha
+- GUI Texture for screen
+- Editing of entity XP
