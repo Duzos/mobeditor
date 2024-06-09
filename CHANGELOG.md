@@ -1,5 +1,3 @@
-# 0.1.0-alpha
-- Basic backend functionality
-- Players given custom spawn egg on world join
-- Summons pig with 1 hp
-- Proof of concept
+# 0.2.0-alpha
+- Basic screen for creating custom egg
+- /mobeditor open_screen
