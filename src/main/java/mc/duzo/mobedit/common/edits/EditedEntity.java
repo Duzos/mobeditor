@@ -2,11 +2,11 @@ package mc.duzo.mobedit.common.edits;
 
 import mc.duzo.mobedit.common.edits.attribute.applier.AttributeApplier;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +31,9 @@ public class EditedEntity {
 		this.deserialize(data);
 	}
 
-	public Optional<LivingEntity> getSelectedEntity() {
+	public Optional<LivingEntity> getSelectedEntity(World world) {
 		if (this.entityCache == null) {
-			Entity created = Registries.ENTITY_TYPE.get(this.entityIndex).create(MinecraftClient.getInstance().world);
+			Entity created = Registries.ENTITY_TYPE.get(this.entityIndex).create(world);
 			if (!(created instanceof LivingEntity)) {
 				return Optional.empty();
 			}

@@ -10,6 +10,7 @@ import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import mc.duzo.mobedit.network.MobEditNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -133,7 +134,7 @@ public class MobEditorScreen extends Screen {
 		return widget;
 	}
 	private LivingEntity getSelectedEntity() {
-		LivingEntity found = editor.getSelectedEntity().orElse(null);
+		LivingEntity found = editor.getSelectedEntity(MinecraftClient.getInstance().world).orElse(null);
 
 		if (found == null) {
 			if (this.wasPreviousNext) this.selectNextEntity();

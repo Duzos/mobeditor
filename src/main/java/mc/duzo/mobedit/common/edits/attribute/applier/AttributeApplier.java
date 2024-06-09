@@ -41,6 +41,8 @@ public abstract class AttributeApplier {
 
 		@Override
 		protected EntityAttributeModifier create(double target, LivingEntity entity) {
+			if (entity.getAttributeInstance(this.getTargetAttribute()) == null) return null;
+
 			return create(target, entity.getAttributeBaseValue(this.getTargetAttribute()));
 		}
 
