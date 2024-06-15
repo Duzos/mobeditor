@@ -1,3 +1,2 @@
-# 0.3.0-alpha
-- GUI Texture for screen
-- Editing of entity XP
+# 0.3.1-alpha
+- Bug / Crash fixes
