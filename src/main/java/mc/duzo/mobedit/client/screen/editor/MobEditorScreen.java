@@ -3,6 +3,7 @@ package mc.duzo.mobedit.client.screen.editor;
 import mc.duzo.mobedit.MobEditMod;
 import mc.duzo.mobedit.client.MobEditModClient;
 import mc.duzo.mobedit.client.screen.ScreenHelper;
+import mc.duzo.mobedit.client.screen.editor.child.ManageEnchantScreen;
 import mc.duzo.mobedit.client.screen.widget.NumericalEditBoxWidget;
 import mc.duzo.mobedit.client.screen.widget.ScrollableButton;
 import mc.duzo.mobedit.client.screen.widget.ScrollableButtonsWidget;
@@ -49,7 +50,7 @@ public class MobEditorScreen extends Screen {
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		context.drawTexture(TEXTURE, ScreenHelper.getCentreX() - (384 / 2), ScreenHelper.getCentreY() - (166 / 2), 0, 0, 384, 384, 384, 384); // Background texture
+		renderBGTexture(context);
 
 		super.render(context, mouseX, mouseY, delta);
 
@@ -71,16 +72,16 @@ public class MobEditorScreen extends Screen {
 		}
 	}
 
-	@Override
-	public void renderBackgroundTexture(DrawContext context) {
-		super.renderBackgroundTexture(context);
+	public static void renderBGTexture(DrawContext context) {
+		context.drawTexture(TEXTURE, ScreenHelper.getCentreX() - (384 / 2), ScreenHelper.getCentreY() - (166 / 2), 0, 0, 384, 384, 384, 384); // Background texture
 	}
 
 	@Override
 	protected void init() {
 		super.init();
 
-		this.editor = new EditedEntity(0);
+		if (this.editor == null)
+			this.editor = new EditedEntity(0);
 
 		/*
 		this.addDrawableChild(
@@ -104,12 +105,16 @@ public class MobEditorScreen extends Screen {
 		this.deleteButton.visible = false;
 		this.addDrawableChild(deleteButton);
 
+		this.addDrawableChild(
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("MANAGE ENCHANT"), (widget) -> this.pressAddEnchant(), ScreenHelper.getCentreX() + 16, ScreenHelper.getCentreY() + 48, true)
+		);
+
 		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() + 80, ScreenHelper.getCentreY() - 9, 96, 18, Text.of(""), Text.of("NAME"));
 		this.addDrawableChild(this.nameBox);
 
 		this.editBoxes = new HashMap<>();
 
-		this.entityButtons = this.createEntityButtonList(ScreenHelper.getCentreX() - 184, ScreenHelper.getCentreY() - 64, 128, 64);
+		this.entityButtons = this.createEntityButtonList(ScreenHelper.getCentreX() - 184, ScreenHelper.getCentreY() - 66, 128, 64);
 		this.addDrawableChild(this.entityButtons);
 
 		this.savedButtons = this.createSavedEntityList();
@@ -126,7 +131,7 @@ public class MobEditorScreen extends Screen {
 
 	private NumericalEditBoxWidget createEditBoxForApplier(AttributeApplier applier, int count) {
 		boolean even = (count % 2) == 0;
-		int y = ScreenHelper.getCentreY();
+		int y = ScreenHelper.getCentreY() - 16;
 		if (even) {
 			y = y - (20 * (count / 2));
 		}
@@ -162,6 +167,11 @@ public class MobEditorScreen extends Screen {
 
 		return found;
 	}
+
+	public EditedEntity getEditor() {
+		return editor;
+	}
+
 	private void selectNextEntity() {
 		int index = this.editor.getEntityIndex();
 
@@ -316,7 +326,7 @@ public class MobEditorScreen extends Screen {
 	}
 
 	private ScrollableButtonsWidget createSavedEntityList() {
-		return this.createSavedEntityList(ScreenHelper.getCentreX() - 184, ScreenHelper.getCentreY(), 128, 64);
+		return this.createSavedEntityList(ScreenHelper.getCentreX() - 184, ScreenHelper.getCentreY() + 2, 128, 64);
 	}
 
 	private ScrollableButton createSavedEntityButton(EditedEntity entity, int index, int x, int y, int width, int height) {
@@ -347,6 +357,10 @@ public class MobEditorScreen extends Screen {
 
 		// buttons dont refresh, give up
 		this.close();
+	}
+
+	private void pressAddEnchant() {
+		ScreenHelper.setScreen(new ManageEnchantScreen(this));
 	}
 
 	@Override

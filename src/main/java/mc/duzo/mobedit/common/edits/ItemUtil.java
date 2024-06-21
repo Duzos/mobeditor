@@ -1,5 +1,6 @@
 package mc.duzo.mobedit.common.edits;
 
+import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import mc.duzo.mobedit.common.edits.edited.EditedEntity;
 import net.minecraft.entity.EntityType;
@@ -9,11 +10,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemUtil {
 	private static final String ATTRIBUTES_KEY = "EditedAttributes";
+	private static final String ENCHANTS_KEY = "EditedEnchants";
 
 	public static ItemStack createSpawnEgg(EntityType<?> type, List<AttributeHolder> attributes) {
 		SpawnEggItem spawnEggItem = SpawnEggItem.forEntity(type);
@@ -39,11 +40,8 @@ public class ItemUtil {
 
 		ItemStack stack = new ItemStack(spawnEggItem);
 
-		NbtCompound attributeNbt = new NbtCompound();
-		for (AttributeHolder attr : edited.getAttributes()) {
-			attributeNbt.put(attr.getName(), attr.serialize());
-		}
-		stack.getOrCreateNbt().put(ATTRIBUTES_KEY, attributeNbt);
+		stack.getOrCreateNbt().put(ATTRIBUTES_KEY, AttributeHolder.serializeList(edited.getAttributes()));
+		stack.getNbt().put(ENCHANTS_KEY, EnchantmentAttribute.serializeList(edited.getEnchants()));
 
 		if (edited.getName().isPresent()) {
 			stack.setCustomName(Text.of(edited.getName().get()));
@@ -57,12 +55,11 @@ public class ItemUtil {
 
 	public static List<AttributeHolder> getAttributes(ItemStack stack) {
 		NbtCompound attributesNbt = stack.getOrCreateNbt().getCompound(ATTRIBUTES_KEY);
+		return AttributeHolder.deserializeList(attributesNbt);
+	}
 
-		List<AttributeHolder> attributes = new ArrayList<>();
-		for (String key : attributesNbt.getKeys()) {
-			attributes.add(new AttributeHolder(attributesNbt.getCompound(key)));
-		}
-
-		return attributes;
+	public static List<EnchantmentAttribute> getEnchants(ItemStack stack) {
+		NbtCompound enchantmentsNbt = stack.getOrCreateNbt().getCompound(ENCHANTS_KEY);
+		return EnchantmentAttribute.deserializeList(enchantmentsNbt);
 	}
 }

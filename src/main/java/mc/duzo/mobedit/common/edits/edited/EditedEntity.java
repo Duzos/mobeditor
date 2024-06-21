@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.common.edits.edited;
 
 import mc.duzo.mobedit.common.edits.attribute.applier.AttributeApplier;
+import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -19,12 +20,14 @@ public class EditedEntity {
 	private int entityIndex;
 	private LivingEntity entityCache;
 	private List<AttributeHolder> attributes;
+	private List<EnchantmentAttribute> enchants;
 	private String name;
 	private boolean valid;
 
 	public EditedEntity(UUID id, int index, List<AttributeHolder> attributes) {
 		this.entityIndex = index;
 		this.attributes = attributes;
+		this.enchants = new ArrayList<>();
 		this.valid = true;
 		this.id = id;
 	}
@@ -32,7 +35,7 @@ public class EditedEntity {
 		this(UUID.randomUUID(), index, new ArrayList<>());
 	}
 	public EditedEntity(NbtCompound data) {
-		this(data.getUuid("Id"), data.getInt("EntityIndex"), AttributeHolder.deserializeList(data.getCompound("Attributes")));
+		this(data.getUuid("Id"), data.getInt("EntityIndex"), new ArrayList<>());
 
 		this.deserialize(data);
 	}
@@ -70,6 +73,20 @@ public class EditedEntity {
 	public AttributeHolder getAttribute(AttributeApplier applier, AttributeHolder fallback) {
 		return this.getAttribute(applier)
 				.orElse(fallback);
+	}
+
+	public List<EnchantmentAttribute> getEnchants() {
+		if (enchants == null) this.enchants = new ArrayList<>();
+
+		return enchants;
+	}
+
+	public void addEnchantment(EnchantmentAttribute attribute) {
+		this.enchants.add(attribute);
+	}
+
+	public void removeEnchantment(EnchantmentAttribute attr) {
+		this.enchants.remove(attr);
 	}
 
 	public Optional<String> getName() {
@@ -120,8 +137,8 @@ public class EditedEntity {
 		nbt.putUuid("Id", this.id);
 		nbt.putInt("EntityIndex", this.entityIndex);
 		nbt.put("Attributes", AttributeHolder.serializeList(this.attributes));
+		nbt.put("Enchants", EnchantmentAttribute.serializeList(this.getEnchants()));
 		nbt.putString("EntityIdentifier", Registries.ENTITY_TYPE.getId(Registries.ENTITY_TYPE.get(this.entityIndex)).toString());
-
 		if (this.name != null) {
 			nbt.putString("Name", this.name);
 		}
@@ -144,6 +161,9 @@ public class EditedEntity {
 
 			this.valid = (found.equals(expected));
 		}
+
+		this.attributes = AttributeHolder.deserializeList(data.getCompound("Attributes"));
+		this.enchants = EnchantmentAttribute.deserializeList(data.getCompound("Enchants"));
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.mixin.server;
 
 import mc.duzo.mobedit.common.edits.ItemUtil;
+import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -30,6 +31,12 @@ public abstract class EntityTypeMixin<T extends Entity> {
 
 		for (AttributeHolder attr : attributes) {
 			attr.tryApply((LivingEntity) result);
+		}
+
+		List<EnchantmentAttribute> enchants = ItemUtil.getEnchants(stack);
+
+		for (EnchantmentAttribute attr : enchants) {
+			attr.apply((LivingEntity) result);
 		}
 	}
 }

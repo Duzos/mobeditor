@@ -13,8 +13,7 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.lit
 
 public class OpenScreenCommand {
 	public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
-		dispatcher.register(literal(MobEditMod.MOD_ID)
-				.then(literal("open_screen").executes(OpenScreenCommand::runCommand).requires(source -> source.hasPermissionLevel(2))));
+		dispatcher.register(literal(MobEditMod.MOD_ID).executes(OpenScreenCommand::runCommand).requires(source -> source.hasPermissionLevel(2)));
 	}
 
 	private static int runCommand(CommandContext<FabricClientCommandSource> context) {

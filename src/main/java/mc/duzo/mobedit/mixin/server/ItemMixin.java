@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.mixin.server;
 
 import mc.duzo.mobedit.common.edits.ItemUtil;
+import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
@@ -31,6 +32,10 @@ public class ItemMixin {
 								Text.literal(": ").formatted(Formatting.GRAY)).append(
 										Text.literal("" + attr.getTarget()).formatted(Formatting.AQUA)
 						));
+			}
+			for (EnchantmentAttribute attr : ItemUtil.getEnchants(stack)) {
+				tooltip.add(
+						Text.literal(attr.getName()).formatted(Formatting.LIGHT_PURPLE));
 			}
 		}
 	}
