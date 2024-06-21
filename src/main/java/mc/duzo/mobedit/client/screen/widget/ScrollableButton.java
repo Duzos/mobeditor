@@ -1,5 +1,6 @@
 package mc.duzo.mobedit.client.screen.widget;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
@@ -23,24 +24,33 @@ public class ScrollableButton extends ButtonWidget {
 	}
 
 	@Override
-	public boolean isMouseOver(double mouseX, double mouseY) {
+	public boolean clicked(double mouseX, double mouseY) {
 		if (this.parent == null) return super.isMouseOver(mouseX, mouseY);
 		if (!this.isVisible()) return false;
 
-		return mouseX >= this.getX() && mouseY >= this.getOffsetY() && mouseX < this.getX() + this.width && mouseY < this.getOffsetY() + this.height;
+		return this.active && this.visible && mouseX >= this.getX() && mouseY >= this.getOffsetY() && mouseX < this.getX() + this.width && mouseY < this.getOffsetY() + this.height;
 	}
 
 	public int getParentIndex() {
 		return this.getParent().getButtons().indexOf(this);
 	}
 	private double getOffsetY() {
-//		return (this.getY() - this.getParent().getScrollY()) - this.getParent().getY();
 		return this.getY() - this.getParent().getScrollY();
 	}
 	private boolean isVisible() {
-		return this.getOffsetY() + this.getHeight() >= 0 && this.getOffsetY() <= this.getParent().getContentsHeight();
+		return !(this.getOffsetY() < this.getParent().getY() || this.getOffsetY() > (this.getParent().getY() + this.getParent().getHeight()));
 	}
-	
+
+	@Override
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+		if (!this.visible) {
+			return;
+		}
+		this.hovered = clicked(mouseX, mouseY);
+		this.renderButton(context, mouseX, mouseY, delta);
+		// this.applyTooltip();
+	}
+
 	public static class Builder {
 
 		private final Text message;
