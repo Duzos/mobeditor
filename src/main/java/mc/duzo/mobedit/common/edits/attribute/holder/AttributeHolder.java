@@ -79,4 +79,12 @@ public class AttributeHolder {
 	private void setTarget(double target) {
 		this.target = target;
 	}
+
+	@Override
+	public String toString() {
+		return "AttributeHolder{" +
+				"applier=" + applier +
+				", target=" + target +
+				'}';
+	}
 }

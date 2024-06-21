@@ -8,10 +8,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Random;
 
@@ -61,5 +65,20 @@ public class MobEditMod implements ModInitializer {
 	public static double round(double value, int precision) {
 		int scale = (int) Math.pow(10, precision);
 		return (double) Math.round(value * scale) / scale;
+	}
+
+	public static Path getSavePath(Path root, String name, String suffix) throws IOException {
+		Path result = root.resolve(name + "." + suffix);
+		Files.createDirectories(result.getParent());
+
+		return result;
+	}
+
+	// Server read/write
+	public static Path getServerSavePath() {
+		return getServer().orElseThrow().getSavePath(WorldSavePath.ROOT).resolve("mobeditor");
+	}
+	public static Path getServerSavePath(String name, String suffix) throws IOException {
+		return getSavePath(getServerSavePath(), name, suffix);
 	}
 }

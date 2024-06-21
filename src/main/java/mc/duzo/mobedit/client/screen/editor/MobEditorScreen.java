@@ -1,14 +1,15 @@
 package mc.duzo.mobedit.client.screen.editor;
 
 import mc.duzo.mobedit.MobEditMod;
+import mc.duzo.mobedit.client.MobEditModClient;
 import mc.duzo.mobedit.client.screen.ScreenHelper;
 import mc.duzo.mobedit.client.screen.widget.NumericalEditBoxWidget;
 import mc.duzo.mobedit.client.screen.widget.ScrollableButton;
 import mc.duzo.mobedit.client.screen.widget.ScrollableButtonsWidget;
-import mc.duzo.mobedit.common.edits.EditedEntity;
 import mc.duzo.mobedit.common.edits.attribute.applier.ApplierRegistry;
 import mc.duzo.mobedit.common.edits.attribute.applier.AttributeApplier;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
+import mc.duzo.mobedit.common.edits.edited.EditedEntity;
 import mc.duzo.mobedit.network.MobEditNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.EditBoxWidget;
+import net.minecraft.client.gui.widget.PressableTextWidget;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -38,6 +40,8 @@ public class MobEditorScreen extends Screen {
 	private HashMap<String, NumericalEditBoxWidget> editBoxes;
 	private EditBoxWidget nameBox;
 	private ScrollableButtonsWidget entityButtons;
+	private ScrollableButtonsWidget savedButtons;
+	private PressableTextWidget deleteButton;
 
 	public MobEditorScreen() {
 		super(Text.translatable("screen." + MobEditMod.MOD_ID + ".mob_editor"));
@@ -45,7 +49,7 @@ public class MobEditorScreen extends Screen {
 
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		context.drawTexture(TEXTURE, ScreenHelper.getCentreX() - (256 / 2), ScreenHelper.getCentreY() - (166 / 2), 0, 0, 256, 256); // Background texture
+		context.drawTexture(TEXTURE, ScreenHelper.getCentreX() - (384 / 2), ScreenHelper.getCentreY() - (166 / 2), 0, 0, 384, 384, 384, 384); // Background texture
 
 		super.render(context, mouseX, mouseY, delta);
 
@@ -58,7 +62,7 @@ public class MobEditorScreen extends Screen {
 			ScreenHelper.renderWidthScaledText(
 					name,
 					context,
-					ScreenHelper.getCentreX() - 64 - 4 - this.textRenderer.getWidth(name),
+					ScreenHelper.getCentreX() + 16 - 4 - this.textRenderer.getWidth(name),
 					y + 5,
 					0xFFFFFF,
 					this.textRenderer.getWidth(name),
@@ -89,16 +93,27 @@ public class MobEditorScreen extends Screen {
 		 */
 
 		this.addDrawableChild(
-				ScreenHelper.createTextButton(this.textRenderer, Text.of("CREATE"), (widget) -> this.pressComplete(), ScreenHelper.getCentreX() - 64, ScreenHelper.getCentreY() + 48, true)
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("CREATE"), (widget) -> this.pressComplete(), ScreenHelper.getCentreX() + 128, ScreenHelper.getCentreY() + 32, true)
 		);
 
-		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() + 32, ScreenHelper.getCentreY() - 40, 64, 18, Text.of(""), Text.of("NAME"));
+		this.addDrawableChild(
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("SAVE"), (widget) -> this.pressSave(), ScreenHelper.getCentreX() + 128, ScreenHelper.getCentreY() + 48, true)
+		);
+
+		this.deleteButton = ScreenHelper.createTextButton(this.textRenderer, Text.of("DELETE"), (widget) -> this.pressDelete(), ScreenHelper.getCentreX() + 128, ScreenHelper.getCentreY() + 62, true);  
+		this.deleteButton.visible = false;
+		this.addDrawableChild(deleteButton);
+
+		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() + 80, ScreenHelper.getCentreY() - 9, 96, 18, Text.of(""), Text.of("NAME"));
 		this.addDrawableChild(this.nameBox);
 
 		this.editBoxes = new HashMap<>();
 
-		this.entityButtons = this.createButtonList(ScreenHelper.getCentreX() - 12, ScreenHelper.getCentreY(), 128, 64);
+		this.entityButtons = this.createEntityButtonList(ScreenHelper.getCentreX() - 184, ScreenHelper.getCentreY() - 64, 128, 64);
 		this.addDrawableChild(this.entityButtons);
+
+		this.savedButtons = this.createSavedEntityList();
+		this.addDrawableChild(this.savedButtons);
 
 		int count = 1;
 		for (AttributeApplier applier : ApplierRegistry.REGISTRY) {
@@ -121,7 +136,7 @@ public class MobEditorScreen extends Screen {
 
 		NumericalEditBoxWidget widget = new NumericalEditBoxWidget(
 				this.textRenderer,
-				ScreenHelper.getCentreX() - 64,
+				ScreenHelper.getCentreX() + 16,
 				y,
 				48,
 				18,
@@ -173,12 +188,31 @@ public class MobEditorScreen extends Screen {
 		this.wasPreviousNext = false;
 		this.onChangeEntity();
 	}
-	private void onChangeEntity() {
+	private void onChangeEntity(boolean isEdited) {
 		for (String name : this.editBoxes.keySet()) {
 			NumericalEditBoxWidget widget = this.editBoxes.get(name);
 			AttributeApplier applier = applierFromName(name);
-			widget.setText("" + MobEditMod.round(applier.getDefault(this.getSelectedEntity()).orElse(0d), 2));
+
+			double value;
+			if (!isEdited) {
+				value = MobEditMod.round(applier.getDefault(this.getSelectedEntity()).orElse(0d), 2);
+			} else {
+				AttributeHolder holder = this.editor.getAttribute(applier).orElse(null);
+				if (holder == null) {
+					value = MobEditMod.round(applier.getDefault(this.getSelectedEntity()).orElse(0d), 2);
+				} else {
+					value = holder.getTarget();
+				}
+			}
+
+			widget.setText("" + value);
 		}
+
+		this.nameBox.setText(this.editor.getName().orElse(""));
+		this.deleteButton.visible = isEdited;
+	}
+	private void onChangeEntity() {
+		this.onChangeEntity(false);
 	}
 
 	private static int getRegistrySize() {
@@ -186,13 +220,13 @@ public class MobEditorScreen extends Screen {
 	}
 
 	private void renderEntity(DrawContext context) {
-		InventoryScreen.drawEntity(context, ScreenHelper.getCentreX() + 64, ScreenHelper.getCentreY() - 48, 24, (float) 0f, (float) 0f, this.getSelectedEntity());
+		InventoryScreen.drawEntity(context, ScreenHelper.getCentreX() + 128, ScreenHelper.getCentreY() - 16, 24, (float) 0f, (float) 0f, this.getSelectedEntity());
 
 		ScreenHelper.renderWidthScaledText(
 				this.getSelectedEntity().getName().getString(),
 				context,
-				ScreenHelper.getCentreX() + 64,
-				ScreenHelper.getCentreY() - 16,
+				ScreenHelper.getCentreX() + 128,
+				ScreenHelper.getCentreY() + 16,
 				0xFFFFFF,
 				this.textRenderer.getWidth(this.getSelectedEntity().getName()),
 				true
@@ -201,6 +235,18 @@ public class MobEditorScreen extends Screen {
 	}
 
 	private void pressComplete() {
+		this.setToEntity();
+
+		NbtCompound data = this.editor.serialize();
+
+		PacketByteBuf buf = PacketByteBufs.create();
+		buf.writeNbt(data);
+
+		ClientPlayNetworking.send(MobEditNetworking.REQUEST_EGG, buf);
+
+		this.close();
+	}
+	private void setToEntity() {
 		for (String name : this.editBoxes.keySet()) {
 			NumericalEditBoxWidget widget = this.editBoxes.get(name);
 			AttributeApplier applier = applierFromName(name);
@@ -212,21 +258,13 @@ public class MobEditorScreen extends Screen {
 		if (!this.nameBox.getText().isBlank()) {
 			this.editor.setName(this.nameBox.getText());
 		}
-
-		NbtCompound data = this.editor.serialize();
-
-		PacketByteBuf buf = PacketByteBufs.create();
-		buf.writeNbt(data);
-
-		ClientPlayNetworking.send(MobEditNetworking.REQUEST_EGG, buf);
-
-		this.close();
 	}
+
 	private AttributeApplier applierFromName(String name) {
 		return ApplierRegistry.REGISTRY.stream().filter(applier -> applier.getName().equals(name)).findFirst().orElse(null);
 	}
 
-	private ScrollableButtonsWidget createButtonList(int x, int y, int width, int height) {
+	private ScrollableButtonsWidget createEntityButtonList(int x, int y, int width, int height) {
 		ButtonList list = new ButtonList(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
 		int index = 0;
@@ -255,6 +293,60 @@ public class MobEditorScreen extends Screen {
 				},
 				null
 		).dimensions(x, y, width, height).build();
+	}
+
+	private ScrollableButtonsWidget createSavedEntityList(int x, int y, int width, int height) {
+		ButtonList list = new ButtonList(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+
+		int index = 0;
+		for (EditedEntity entity : MobEditModClient.editedEntities.list) {
+			list.add(createSavedEntityButton(entity, index, x, y, width, height / 4));
+			index++;
+		}
+
+		ScrollableButtonsWidget created = new ScrollableButtonsWidget(x, y, width, height, Text.of("Entities"), list);
+
+		for (ClickableWidget i : list) { // code bad
+			if (!(i instanceof ScrollableButton button)) continue;
+
+			button.setParent(created);
+		}
+
+		return created;
+	}
+
+	private ScrollableButtonsWidget createSavedEntityList() {
+		return this.createSavedEntityList(ScreenHelper.getCentreX() - 184, ScreenHelper.getCentreY(), 128, 64);
+	}
+
+	private ScrollableButton createSavedEntityButton(EditedEntity entity, int index, int x, int y, int width, int height) {
+		return ScrollableButton.builder(
+				Text.of(entity.getName().orElse("No Name")),
+				button -> {
+					System.out.println("PRESSED " + button.getMessage().getString());
+					this.editor = entity;
+					this.onChangeEntity(true);
+				},
+				null
+		).dimensions(x, y, width, height).build();
+	}
+
+
+	private void pressSave() {
+		this.setToEntity();
+		MobEditModClient.editedEntities.list.add(this.editor);
+		this.savedButtons = this.createSavedEntityList();
+
+		// button dont refresh, give up
+		this.close();
+	}
+	private void pressDelete() {
+		MobEditModClient.editedEntities.remove(MobEditModClient.getClientSavePath(), this.editor);
+		this.editor = new EditedEntity(0);
+		this.savedButtons = this.createSavedEntityList();
+
+		// buttons dont refresh, give up
+		this.close();
 	}
 
 	@Override

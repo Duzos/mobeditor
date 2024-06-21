@@ -1,7 +1,7 @@
 package mc.duzo.mobedit.network;
 
 import mc.duzo.mobedit.MobEditMod;
-import mc.duzo.mobedit.common.edits.EditedEntity;
+import mc.duzo.mobedit.common.edits.edited.EditedEntity;
 import mc.duzo.mobedit.common.edits.ItemUtil;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.NbtCompound;

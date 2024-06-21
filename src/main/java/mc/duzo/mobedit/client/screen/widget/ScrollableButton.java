@@ -1,6 +1,5 @@
 package mc.duzo.mobedit.client.screen.widget;
 
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
@@ -24,20 +23,11 @@ public class ScrollableButton extends ButtonWidget {
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-		super.render(context, mouseX, mouseY, delta);
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		if (this.parent == null) return super.isMouseOver(mouseX, mouseY);
+		if (!this.isVisible()) return false;
 
-		if (this.parent == null) return;
-		if (!this.isVisible()) {
-			this.hovered = false;
-			return;
-		}
-
-		this.hovered = mouseX >= this.getX() && mouseY >= this.getOffsetY() && mouseX < this.getX() + this.width && mouseY < this.getOffsetY() + this.height;
-
-		if (this.isHovered()) {
-			System.out.println("REAL (" + this.getY() + ") SCROLL (" + this.getParent().getScrollY() + ") OFFSET (" + this.getOffsetY() + ") MOUSE (" + mouseY + ") TEXT (" + this.getMessage().getString() + ")");
-		}
+		return mouseX >= this.getX() && mouseY >= this.getOffsetY() && mouseX < this.getX() + this.width && mouseY < this.getOffsetY() + this.height;
 	}
 
 	public int getParentIndex() {

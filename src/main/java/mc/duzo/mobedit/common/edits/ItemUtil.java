@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.common.edits;
 
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
+import mc.duzo.mobedit.common.edits.edited.EditedEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
