@@ -81,7 +81,8 @@ public class MobEditorScreen extends Screen {
 	protected void init() {
 		super.init();
 
-		if (this.editor == null)
+		boolean edited = this.editor != null;
+		if (!edited)
 			this.editor = new EditedEntity(0);
 
 		/*
@@ -130,7 +131,7 @@ public class MobEditorScreen extends Screen {
 			count++;
 		}
 
-		this.onChangeEntity();
+		this.onChangeEntity(edited);
 	}
 
 	private NumericalEditBoxWidget createEditBoxForApplier(AttributeApplier applier, int count) {
@@ -202,7 +203,7 @@ public class MobEditorScreen extends Screen {
 		this.wasPreviousNext = false;
 		this.onChangeEntity();
 	}
-	private void onChangeEntity(boolean isEdited) {
+	public void onChangeEntity(boolean isEdited) {
 		for (String name : this.editBoxes.keySet()) {
 			NumericalEditBoxWidget widget = this.editBoxes.get(name);
 			AttributeApplier applier = applierFromName(name);
@@ -261,6 +262,8 @@ public class MobEditorScreen extends Screen {
 		this.close();
 	}
 	private void setToEntity() {
+		this.editor.getAttributes().clear();
+
 		for (String name : this.editBoxes.keySet()) {
 			NumericalEditBoxWidget widget = this.editBoxes.get(name);
 			AttributeApplier applier = applierFromName(name);
@@ -364,9 +367,11 @@ public class MobEditorScreen extends Screen {
 	}
 
 	private void pressAddEnchant() {
+		this.setToEntity();
 		ScreenHelper.setScreen(new ManageEnchantScreen(this));
 	}
 	private void pressAddDrop() {
+		this.setToEntity();
 		ScreenHelper.setScreen(new ManageDropScreen(this));
 	}
 
