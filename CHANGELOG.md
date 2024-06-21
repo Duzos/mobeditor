@@ -1,2 +1,4 @@
-# 0.3.1-alpha
-- Bug / Crash fixes
+# 0.4.0-alpha
+- Custom Drops
+- Custom "Enchantments"
+- Extreme changes to screen
