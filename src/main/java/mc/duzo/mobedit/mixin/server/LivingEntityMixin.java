@@ -1,11 +1,14 @@
 package mc.duzo.mobedit.mixin.server;
 
 import mc.duzo.mobedit.common.edits.attribute.applier.CustomAttributes;
+import mc.duzo.mobedit.common.edits.attribute.drop.DropAttribute;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -14,6 +17,8 @@ public abstract class LivingEntityMixin implements CustomAttributes {
 	public int defaultXp = -1;
 	@Unique
 	public int targetXp = -1;
+	@Unique
+	public DropAttribute customDrops;
 
 	@Override
 	public void mobeditor$setTargetXp(int target) {
@@ -50,4 +55,24 @@ public abstract class LivingEntityMixin implements CustomAttributes {
 		cir.setReturnValue(target);
 	}
 
+	@Override
+	public DropAttribute mobedit$getDropModifier() {
+		return this.customDrops;
+	}
+
+	@Override
+	public void mobedit$setDropModifier(DropAttribute drop) {
+		this.customDrops = drop;
+	}
+
+	@Inject(at = @At("HEAD"), method = "dropLoot", cancellable = true)
+	private void mobedit$dropLoot(DamageSource damageSource, boolean causedByPlayer, CallbackInfo ci) {
+		DropAttribute dropper = ((CustomAttributes) this).mobedit$getDropModifier();
+		if (dropper != null) {
+			if (!dropper.isEdited()) return;
+
+			dropper.getDrops().forEach(((LivingEntity) (Object) this)::dropStack);
+			ci.cancel();
+		}
+	}
 }

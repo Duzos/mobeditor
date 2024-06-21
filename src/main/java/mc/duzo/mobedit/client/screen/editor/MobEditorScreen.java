@@ -3,6 +3,7 @@ package mc.duzo.mobedit.client.screen.editor;
 import mc.duzo.mobedit.MobEditMod;
 import mc.duzo.mobedit.client.MobEditModClient;
 import mc.duzo.mobedit.client.screen.ScreenHelper;
+import mc.duzo.mobedit.client.screen.editor.child.ManageDropScreen;
 import mc.duzo.mobedit.client.screen.editor.child.ManageEnchantScreen;
 import mc.duzo.mobedit.client.screen.widget.NumericalEditBoxWidget;
 import mc.duzo.mobedit.client.screen.widget.ScrollableButton;
@@ -107,6 +108,9 @@ public class MobEditorScreen extends Screen {
 
 		this.addDrawableChild(
 				ScreenHelper.createTextButton(this.textRenderer, Text.of("MANAGE ENCHANT"), (widget) -> this.pressAddEnchant(), ScreenHelper.getCentreX() + 16, ScreenHelper.getCentreY() + 48, true)
+		);
+		this.addDrawableChild(
+				ScreenHelper.createTextButton(this.textRenderer, Text.of("MANAGE DROPS"), (widget) -> this.pressAddDrop(), ScreenHelper.getCentreX() + 16, ScreenHelper.getCentreY() + 64, true)
 		);
 
 		this.nameBox = new EditBoxWidget(this.textRenderer, ScreenHelper.getCentreX() + 80, ScreenHelper.getCentreY() - 9, 96, 18, Text.of(""), Text.of("NAME"));
@@ -361,6 +365,9 @@ public class MobEditorScreen extends Screen {
 
 	private void pressAddEnchant() {
 		ScreenHelper.setScreen(new ManageEnchantScreen(this));
+	}
+	private void pressAddDrop() {
+		ScreenHelper.setScreen(new ManageDropScreen(this));
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.common.edits.edited;
 
 import mc.duzo.mobedit.common.edits.attribute.applier.AttributeApplier;
+import mc.duzo.mobedit.common.edits.attribute.drop.DropAttribute;
 import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.entity.Entity;
@@ -21,6 +22,7 @@ public class EditedEntity {
 	private LivingEntity entityCache;
 	private List<AttributeHolder> attributes;
 	private List<EnchantmentAttribute> enchants;
+	private DropAttribute drops;
 	private String name;
 	private boolean valid;
 
@@ -89,6 +91,14 @@ public class EditedEntity {
 		this.enchants.remove(attr);
 	}
 
+	public DropAttribute getDrops() {
+		if (this.drops == null && this.entityCache != null) {
+			this.drops = new DropAttribute(this.entityCache);
+		}
+
+		return this.drops;
+	}
+
 	public Optional<String> getName() {
 		return Optional.ofNullable(this.name);
 	}
@@ -143,6 +153,12 @@ public class EditedEntity {
 			nbt.putString("Name", this.name);
 		}
 
+		System.out.println(this.getDrops().getDrops());
+
+		if (this.getDrops() != null) {
+			nbt.put("Drops", this.getDrops().serialize());
+		}
+
 		return nbt;
 	}
 	private void deserialize(NbtCompound data) {
@@ -164,6 +180,10 @@ public class EditedEntity {
 
 		this.attributes = AttributeHolder.deserializeList(data.getCompound("Attributes"));
 		this.enchants = EnchantmentAttribute.deserializeList(data.getCompound("Enchants"));
+
+		if (data.contains("Drops")) {
+			this.drops = new DropAttribute(data.getCompound("Drops"));
+		}
 	}
 
 	/**

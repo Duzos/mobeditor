@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.mixin.server;
 
 import mc.duzo.mobedit.common.edits.ItemUtil;
+import mc.duzo.mobedit.common.edits.attribute.drop.DropAttribute;
 import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.entity.Entity;
@@ -37,6 +38,11 @@ public abstract class EntityTypeMixin<T extends Entity> {
 
 		for (EnchantmentAttribute attr : enchants) {
 			attr.apply((LivingEntity) result);
+		}
+
+		DropAttribute dropper = ItemUtil.getDrops(stack);
+		if (dropper.isEdited()) {
+			dropper.apply((LivingEntity) result);
 		}
 	}
 }

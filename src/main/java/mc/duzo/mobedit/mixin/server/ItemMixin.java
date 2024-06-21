@@ -1,6 +1,7 @@
 package mc.duzo.mobedit.mixin.server;
 
 import mc.duzo.mobedit.common.edits.ItemUtil;
+import mc.duzo.mobedit.common.edits.attribute.drop.DropAttribute;
 import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import net.minecraft.client.item.TooltipContext;
@@ -36,6 +37,15 @@ public class ItemMixin {
 			for (EnchantmentAttribute attr : ItemUtil.getEnchants(stack)) {
 				tooltip.add(
 						Text.literal(attr.getName()).formatted(Formatting.LIGHT_PURPLE));
+			}
+
+			DropAttribute dropper = ItemUtil.getDrops(stack);
+			if (dropper.isEdited()) {
+				for (ItemStack dropStack : dropper.getDrops()) {
+					tooltip.add(
+							dropStack.getName().copy().formatted(Formatting.YELLOW)
+					);
+				}
 			}
 		}
 	}

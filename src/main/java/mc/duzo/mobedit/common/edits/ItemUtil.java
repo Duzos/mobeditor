@@ -1,5 +1,6 @@
 package mc.duzo.mobedit.common.edits;
 
+import mc.duzo.mobedit.common.edits.attribute.drop.DropAttribute;
 import mc.duzo.mobedit.common.edits.attribute.enchants.EnchantmentAttribute;
 import mc.duzo.mobedit.common.edits.attribute.holder.AttributeHolder;
 import mc.duzo.mobedit.common.edits.edited.EditedEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ItemUtil {
 	private static final String ATTRIBUTES_KEY = "EditedAttributes";
 	private static final String ENCHANTS_KEY = "EditedEnchants";
+	private static final String DROPS_KEY = "EditedDrops";
 
 	public static ItemStack createSpawnEgg(EntityType<?> type, List<AttributeHolder> attributes) {
 		SpawnEggItem spawnEggItem = SpawnEggItem.forEntity(type);
@@ -42,6 +44,7 @@ public class ItemUtil {
 
 		stack.getOrCreateNbt().put(ATTRIBUTES_KEY, AttributeHolder.serializeList(edited.getAttributes()));
 		stack.getNbt().put(ENCHANTS_KEY, EnchantmentAttribute.serializeList(edited.getEnchants()));
+		stack.getNbt().put(DROPS_KEY, edited.getDrops().serialize());
 
 		if (edited.getName().isPresent()) {
 			stack.setCustomName(Text.of(edited.getName().get()));
@@ -61,5 +64,8 @@ public class ItemUtil {
 	public static List<EnchantmentAttribute> getEnchants(ItemStack stack) {
 		NbtCompound enchantmentsNbt = stack.getOrCreateNbt().getCompound(ENCHANTS_KEY);
 		return EnchantmentAttribute.deserializeList(enchantmentsNbt);
+	}
+	public static DropAttribute getDrops(ItemStack stack) {
+		return new DropAttribute(stack.getOrCreateNbt().getCompound(DROPS_KEY));
 	}
 }
