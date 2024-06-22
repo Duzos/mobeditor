@@ -1,2 +1,2 @@
-# 0.4.1-alpha
-- Fix scrollable buttons
+# 1.0.0
+- Initial Release
